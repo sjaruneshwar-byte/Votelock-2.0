@@ -1,0 +1,5 @@
+votelock.db
+__pycache__/
+.env
+static/uploads/*
+!static/uploads/.gitkeep

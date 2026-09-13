@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}VoteLock{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+{% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+{% if session.get('admin_id') %}
+<div class="app-shell"><aside class="sidebar"><a class="brand" href="{{ url_for('admin.dashboard') }}"><span class="brand-mark">✓</span><span><b>VoteLock</b><small>Smart e-Voting</small></span></a><div class="side-label">CONTROL CENTER</div><nav>
+<a class="nav-link" href="{{ url_for('admin.dashboard') }}">⌂ <span>Dashboard</span></a><a class="nav-link" href="{{ url_for('voters.list_voters') }}">♙ <span>Voters</span></a><a class="nav-link" href="{{ url_for('candidates.list_candidates') }}">◉ <span>Candidates</span></a><a class="nav-link" href="{{ url_for('voters.add_voter') }}">＋ <span>Add voter</span></a><a class="nav-link" href="{{ url_for('candidates.add_candidate') }}">＋ <span>Add candidate</span></a><a class="nav-link" href="{{ url_for('qr.scanner') }}">⌕ <span>QR verification</span></a><a class="nav-link" href="{{ url_for('admin.logs') }}">☷ <span>Audit logs</span></a></nav><div class="sidebar-bottom"><div class="mini-user"><div class="avatar">{{ session.get('admin_name','A')[:1]|upper }}</div><div><b>{{ session.get('admin_name','Administrator') }}</b><small>Administrator</small></div></div><a class="logout" href="{{ url_for('auth.logout') }}">↪ Sign out</a></div></aside>
+<main class="main"><header class="topbar"><div><span class="crumb">{{ election_name }}</span><h1>{% block page_heading %}Dashboard{% endblock %}</h1></div><div class="top-actions"><span class="live-pill"><i></i> System ready</span><span class="top-avatar">{{ session.get('admin_name','A')[:1]|upper }}</span></div></header>
+<div class="flash-wrap">{% with messages=get_flashed_messages(with_categories=true) %}{% for category,message in messages %}<div class="flash {{ category }}"><span>{{ '✓' if category=='success' else '!' }}</span>{{ message }}</div>{% endfor %}{% endwith %}</div>
+<section class="page">{% block content %}{% endblock %}</section></main></div>
+{% else %}<div class="public-nav"><a class="brand" href="{{ url_for('auth.login') }}"><span class="brand-mark">✓</span><span><b>VoteLock</b><small>Smart e-Voting</small></span></a><div><a href="{{ url_for('auth.voter_login') }}" class="nav-plain">Voter portal</a></div></div><div class="public-flash">{% with messages=get_flashed_messages(with_categories=true) %}{% for category,message in messages %}<div class="flash {{ category }}"><span>{{ '✓' if category=='success' else '!' }}</span>{{ message }}</div>{% endfor %}{% endwith %}</div>{% block public_content %}{% endblock %}{% endif %}
+<script>document.querySelectorAll('.flash').forEach(x=>setTimeout(()=>x.classList.add('fade'),4500));</script>{% block extra_js %}{% endblock %}
+</body></html>

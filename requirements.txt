@@ -1,0 +1,7 @@
+Flask>=3.0,<4.0
+Werkzeug>=3.0,<4.0
+python-dotenv>=1.0,<2.0
+qrcode[pil]>=7.4,<9.0
+Pillow>=10.0,<12.0
+# Optional Raspberry Pi thermal printer support:
+pyserial>=3.5,<4.0

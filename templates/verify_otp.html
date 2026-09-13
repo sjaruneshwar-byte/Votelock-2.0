@@ -1,0 +1,404 @@
+{% extends "base.html" %} {% block title %}VoteLock | Verify OTP{% endblock %}
+{% block body_class %}auth-body{% endblock %} {% block public_content %}
+
+<main class="auth-layout compact">
+  <!-- =====================================================
+         LEFT SIDE
+         ===================================================== -->
+
+  <section class="auth-hero">
+    <div class="hero-badge">EMAIL VERIFICATION</div>
+
+    <h1>
+      Secure your<br />
+      <span>administrator account.</span>
+    </h1>
+
+    <p>
+      Verify your email address using the one-time password sent to your
+      registered email.
+    </p>
+
+    <div
+      style="margin-top: 35px; display: flex; flex-direction: column; gap: 14px"
+    >
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          color: #475569;
+          font-size: 14px;
+        "
+      >
+        <span
+          style="
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #dbeafe;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+          "
+          >1</span
+        >
+
+        <span>Check your registered email</span>
+      </div>
+
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          color: #475569;
+          font-size: 14px;
+        "
+      >
+        <span
+          style="
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #dbeafe;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+          "
+          >2</span
+        >
+
+        <span>Enter the 6-digit OTP</span>
+      </div>
+
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          color: #475569;
+          font-size: 14px;
+        "
+      >
+        <span
+          style="
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #16a34a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+          "
+          >3</span
+        >
+
+        <span>Activate your administrator account</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =====================================================
+         OTP PANEL
+         ===================================================== -->
+
+  <section class="auth-panel">
+    <div class="auth-card">
+      <div class="eyebrow">OTP VERIFICATION</div>
+
+      <h2>Verify your email</h2>
+
+      <p
+        style="
+          color: #64748b;
+          font-size: 14px;
+          line-height: 1.6;
+          margin-bottom: 24px;
+        "
+      >
+        A 6-digit verification code has been sent to:
+
+        <br />
+
+        <strong
+          style="
+            display: inline-block;
+            margin-top: 8px;
+            color: #2563eb;
+            word-break: break-word;
+          "
+        >
+          {{ email }}
+        </strong>
+      </p>
+
+      <!-- =================================================
+                 OTP FORM
+                 ================================================= -->
+
+      <form
+        method="POST"
+        action="{{ url_for('auth.verify_otp') }}"
+        id="otpForm"
+        autocomplete="off"
+      >
+        <label
+          for="otp"
+          style="
+            display: block;
+            margin-bottom: 8px;
+            color: #334155;
+            font-size: 14px;
+            font-weight: 700;
+          "
+        >
+          Enter OTP
+        </label>
+
+        <input
+          type="text"
+          id="otp"
+          name="otp"
+          maxlength="6"
+          minlength="6"
+          pattern="[0-9]{6}"
+          inputmode="numeric"
+          autocomplete="one-time-code"
+          placeholder="000000"
+          required
+          autofocus
+          style="
+            width: 100%;
+            box-sizing: border-box;
+            height: 64px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: #0f172a;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 10px;
+            text-align: center;
+            outline: none;
+            transition: 0.2s;
+          "
+        />
+
+        <p
+          style="
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            margin-top: 9px;
+          "
+        >
+          Enter the 6-digit code received in your email.
+        </p>
+
+        <!-- =================================================
+                     TIMER
+                     ================================================= -->
+
+        <div
+          id="otpTimerBox"
+          style="
+            margin-top: 18px;
+            padding: 12px;
+            border-radius: 10px;
+            background: #eff6ff;
+            color: #1e40af;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+          "
+        >
+          ⏱ OTP expires in
+
+          <strong id="otpTimer"> 10:00 </strong>
+        </div>
+
+        <!-- =================================================
+                     VERIFY BUTTON
+                     ================================================= -->
+
+        <button
+          type="submit"
+          id="verifyButton"
+          class="primary-btn"
+          style="width: 100%; margin-top: 20px"
+        >
+          Verify OTP
+
+          <span> → </span>
+        </button>
+      </form>
+
+      <!-- =================================================
+                 SECURITY MESSAGE
+                 ================================================= -->
+
+      <div
+        style="
+          margin-top: 20px;
+          padding: 14px;
+          border-radius: 10px;
+          background: #f0fdf4;
+          border: 1px solid #bbf7d0;
+          color: #166534;
+          font-size: 12px;
+          line-height: 1.5;
+          text-align: left;
+        "
+      >
+        <strong> 🛡 Security notice </strong>
+
+        <br />
+
+        Never share your OTP with anyone. VoteLock will never ask you to
+        disclose your verification code.
+      </div>
+
+      <!-- =================================================
+                 BACK TO REGISTER
+                 ================================================= -->
+
+      <p class="auth-bottom" style="margin-top: 22px">
+        Didn't receive the OTP?
+
+        <br />
+
+        <a href="{{ url_for('auth.register') }}"> Register again </a>
+      </p>
+    </div>
+  </section>
+</main>
+
+<!-- =========================================================
+     JAVASCRIPT
+     ========================================================= -->
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const otpInput = document.getElementById("otp");
+
+    const otpForm = document.getElementById("otpForm");
+
+    const verifyButton = document.getElementById("verifyButton");
+
+    const timer = document.getElementById("otpTimer");
+
+    const timerBox = document.getElementById("otpTimerBox");
+
+    /* ========================================================
+       ALLOW ONLY NUMBERS
+       ======================================================== */
+
+    otpInput.addEventListener("input", function () {
+      this.value = this.value.replace(/[^0-9]/g, "").slice(0, 6);
+    });
+
+    /* ========================================================
+       INPUT FOCUS STYLE
+       ======================================================== */
+
+    otpInput.addEventListener("focus", function () {
+      this.style.borderColor = "#2563eb";
+
+      this.style.background = "#ffffff";
+
+      this.style.boxShadow = "0 0 0 4px rgba(37, 99, 235, 0.10)";
+    });
+
+    otpInput.addEventListener("blur", function () {
+      this.style.borderColor = "#e2e8f0";
+
+      this.style.boxShadow = "none";
+    });
+
+    /* ========================================================
+       COUNTDOWN
+       
+       600 SECONDS = 10 MINUTES
+       ======================================================== */
+
+    let remainingSeconds = 600;
+
+    function updateTimer() {
+      const minutes = Math.floor(remainingSeconds / 60);
+
+      const seconds = remainingSeconds % 60;
+
+      timer.textContent =
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(seconds).padStart(2, "0");
+
+      /* Last minute */
+
+      if (remainingSeconds <= 60) {
+        timer.style.color = "#dc2626";
+
+        timerBox.style.background = "#fef2f2";
+
+        timerBox.style.color = "#991b1b";
+      }
+
+      /* Expired */
+
+      if (remainingSeconds <= 0) {
+        clearInterval(timerInterval);
+
+        timer.textContent = "Expired";
+
+        otpInput.disabled = true;
+
+        verifyButton.disabled = true;
+
+        verifyButton.style.opacity = "0.5";
+
+        verifyButton.style.cursor = "not-allowed";
+
+        return;
+      }
+
+      remainingSeconds--;
+    }
+
+    updateTimer();
+
+    const timerInterval = setInterval(updateTimer, 1000);
+
+    /* ========================================================
+       FORM VALIDATION
+       ======================================================== */
+
+    otpForm.addEventListener("submit", function (event) {
+      const otp = otpInput.value.trim();
+
+      if (!/^\d{6}$/.test(otp)) {
+        event.preventDefault();
+
+        alert("Please enter the complete 6-digit OTP.");
+
+        otpInput.focus();
+
+        return;
+      }
+
+      verifyButton.disabled = true;
+
+      verifyButton.style.opacity = "0.7";
+
+      verifyButton.innerHTML = "Verifying...";
+    });
+  });
+</script>
+
+{% endblock %}
