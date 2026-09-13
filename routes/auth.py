@@ -877,69 +877,61 @@ def logout():
 # VOTER LOGIN
 # ============================================================
 
-@auth_bp.route(
-    "/voter/login",
-    methods=["GET", "POST"]
-)
+@auth_bp.route("/voter/login", methods=["GET", "POST"])
 def voter_login():
-
-    # --------------------------------------------------------
-    # POST
-    # --------------------------------------------------------
 
     if request.method == "POST":
 
-        username = request.form.get(
-            "username",
-            ""
-        ).strip().upper()
+        # --------------------------------------------------
+        # GET LOGIN DETAILS
+        # --------------------------------------------------
 
-        password = request.form.get(
-            "password",
-            ""
-        )
-
-
-        # ----------------------------------------------------
-        # VALIDATION
-        # ----------------------------------------------------
+        username = request.form.get("username", "").strip().upper()
+        password = request.form.get("password", "")
 
         if not username or not password:
+            flash("Please enter your username and password.", "error")
+            return redirect(url_for("auth.voter_login"))
 
-            flash(
-                "Enter your voter username and password.",
-                "error"
-            )
-
-            return redirect(
-                url_for("auth.voter_login")
-            )
-
-
-        # ----------------------------------------------------
+        # --------------------------------------------------
         # FIND VOTER
-        # ----------------------------------------------------
+        # --------------------------------------------------
 
-        voter = get_voter_by_username(
-            username
-        )
+        voter = get_voter_by_username(username)
 
+        if not voter:
+            flash("Invalid voter credentials.", "error")
+            return redirect(url_for("auth.voter_login"))
 
-        # ----------------------------------------------------
-        # INVALID CREDENTIALS
-        # ----------------------------------------------------
+        # --------------------------------------------------
+        # CHECK PASSWORD
+        # --------------------------------------------------
 
-        if (
-            not voter
-            or not voter["password_hash"]
-            or not check_password_hash(
-                voter["password_hash"],
-                password
-            )
+        if not voter["password_hash"]:
+            flash("Voter account is not configured correctly.", "error")
+            return redirect(url_for("auth.voter_login"))
+
+        if not check_password_hash(
+            voter["password_hash"],
+            password
         ):
+            flash("Invalid voter credentials.", "error")
+            return redirect(url_for("auth.voter_login"))
+
+        # --------------------------------------------------
+        # CHECK WHETHER VOTER HAS ALREADY VOTED
+        # --------------------------------------------------
+
+        # Your database uses:
+        # has_voted INTEGER DEFAULT 0
+        #
+        # 0 = voter has not voted
+        # 1 = voter has already voted
+
+        if voter["has_voted"] == 1:
 
             flash(
-                "Invalid voter credentials.",
+                "You have already voted. You cannot vote again.",
                 "error"
             )
 
@@ -947,58 +939,38 @@ def voter_login():
                 url_for("auth.voter_login")
             )
 
-
-        # ----------------------------------------------------
-        # PREVENT ALREADY VOTED VOTER FROM STARTING AGAIN
-        # ----------------------------------------------------
-
-        if voter["status"] == "VOTED":
-
-            flash(
-                "You have already completed voting.",
-                "error"
-            )
-
-            return redirect(
-                url_for("auth.voter_login")
-            )
-
-
-        # ----------------------------------------------------
+        # --------------------------------------------------
         # CREATE VOTER SESSION
-        # ----------------------------------------------------
+        # --------------------------------------------------
 
         session.clear()
 
-        session["qr_verified"] = False
-
-        session["face_captured"] = False
-
         session["voter_id"] = voter["voter_id"]
-
         session["voter_name"] = voter["name"]
-
         session["voter_username"] = voter["username"]
 
+        # QR verification starts as FALSE
+        session["qr_verified"] = False
 
-        # ----------------------------------------------------
-        # VOTER HOME
-        # ----------------------------------------------------
+        # Face verification/capture starts as FALSE
+        session["face_captured"] = False
+
+        # Voter has not voted yet
+        session["voter_has_voted"] = False
+
+        # --------------------------------------------------
+        # REDIRECT TO VOTER HOME
+        # --------------------------------------------------
 
         return redirect(
             url_for("voting.voter_home")
         )
 
+    # ------------------------------------------------------
+    # GET REQUEST
+    # ------------------------------------------------------
 
-    # --------------------------------------------------------
-    # GET
-    # --------------------------------------------------------
-
-    return render_template(
-        "voter_login.html"
-    )
-
-
+    return render_template("voter_login.html")
 # ============================================================
 # VOTER LOGOUT
 # ============================================================
